@@ -1,4 +1,11 @@
 # CulturesLocal
 
-Fabiano Vidal | Tela de Login , Cadastro, Nova Senha, Index , Favoritos , Perfil, Meus Eventos.
-Kleberson Costa | Notificacoes, Carrinho, Finalizar Compra, Suporte, Criar Evento, Filtros, Evento.
+| Fabiano Vidal | Kleberson Costa |
+|---------------|-----------------|
+|Tela de Login | Notificacoes |
+|Cadastro | Carrinho |
+|Nova Senha | Finalizar Compra |
+|Index | Suporte |
+|Favoritos | Criar Evento |
+|Perfil | Filtros |
+|Meus Eventos | Evento |
