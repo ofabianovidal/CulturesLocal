@@ -154,6 +154,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 14),
+                  Center(
+                    child: CulturePillButton(
+                      label: 'Sair da Conta',
+                      width: 168,
+                      height: 38,
+                      fontSize: 13,
+                      backgroundColor: AppColors.paleYellow,
+                      foregroundColor: AppColors.green,
+                      onPressed: () {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.home,
+                          (_) => false,
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
