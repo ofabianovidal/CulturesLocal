@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'cart_screen.dart';
+
+import '../app_routes.dart';
+import '../widgets/bottom_nav.dart';
+import '../widgets/event_card.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -96,14 +99,10 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   Widget _coverImage() {
-    return ClipRRect(
+    return CultureEventPoster(
+      width: MediaQuery.of(context).size.width - 32,
+      height: 220,
       borderRadius: BorderRadius.circular(20),
-      child: Container(
-        height: 220,
-        width: double.infinity,
-        color: const Color(0xFFD9D9D9),
-        child: const Center(child: Icon(Icons.image, size: 60, color: Colors.white54)),
-      ),
     );
   }
 
@@ -161,39 +160,15 @@ class _EventScreenState extends State<EventScreen> {
             'Comprar',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
           ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CartScreen()),
-          ),
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cart),
         ),
       ),
     );
   }
 
   Widget _bottomNav() {
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: _green,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navIcon(Icons.home_outlined, () {}),
-          _navIcon(Icons.person_outline, () {}),
-          _navIcon(Icons.favorite_border, () {}),
-          _navIcon(Icons.receipt_long_outlined, () {}),
-          _navIcon(Icons.headset_mic_outlined, () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _navIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Icon(icon, color: Colors.white, size: 26),
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.home,
     );
   }
 }

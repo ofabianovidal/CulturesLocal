@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../app_routes.dart';
+import '../widgets/bottom_nav.dart';
+
 class FiltersScreen extends StatefulWidget {
   const FiltersScreen({super.key});
 
@@ -96,9 +99,15 @@ class _FiltersScreenState extends State<FiltersScreen> {
           ),
           Row(
             children: [
-              _headerIcon(Icons.shopping_cart_outlined, () {}),
+              _headerIcon(
+                Icons.shopping_cart_outlined,
+                () => Navigator.of(context).pushNamed(AppRoutes.cart),
+              ),
               const SizedBox(width: 10),
-              _headerIcon(Icons.notifications_outlined, () {}),
+              _headerIcon(
+                Icons.notifications_outlined,
+                () => Navigator.of(context).pushNamed(AppRoutes.notifications),
+              ),
             ],
           ),
         ],
@@ -249,29 +258,8 @@ class _FiltersScreenState extends State<FiltersScreen> {
   }
 
   Widget _bottomNav() {
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: _green,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navIcon(Icons.home_outlined, () {}),
-          _navIcon(Icons.person_outline, () {}),
-          _navIcon(Icons.favorite_border, () {}),
-          _navIcon(Icons.receipt_long_outlined, () {}),
-          _navIcon(Icons.headset_mic_outlined, () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _navIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Icon(icon, color: Colors.white, size: 26),
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.home,
     );
   }
 }
