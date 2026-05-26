@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/bottom_nav.dart';
+
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({super.key});
 
@@ -172,29 +174,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   Widget _bottomNav() {
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: _green,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navIcon(Icons.home_outlined, () {}),
-          _navIcon(Icons.person_outline, () {}),
-          _navIcon(Icons.favorite_border, () {}),
-          _navIcon(Icons.receipt_long_outlined, () {}),
-          _navIcon(Icons.headset_mic_outlined, () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _navIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Icon(icon, color: Colors.white, size: 26),
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.myEvents,
     );
   }
 }

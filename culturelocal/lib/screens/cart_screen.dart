@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'checkout_screen.dart';
+
+import '../app_routes.dart';
+import '../widgets/bottom_nav.dart';
+import '../widgets/event_card.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -88,11 +91,10 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Container(
+            child: const CultureEventPoster(
               width: 64,
               height: 64,
-              color: Colors.grey.shade300,
-              child: const Icon(Icons.image, color: Colors.white54, size: 30),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
           const SizedBox(width: 14),
@@ -190,10 +192,7 @@ class _CartScreenState extends State<CartScreen> {
             backgroundColor: _yellow,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CheckoutScreen()),
-          ),
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.checkout),
           child: const Text(
             'Finalizar',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
@@ -204,29 +203,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _bottomNav() {
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: Color(0xFF145F2E),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navIcon(Icons.home_outlined, () {}),
-          _navIcon(Icons.person_outline, () {}),
-          _navIcon(Icons.favorite_border, () {}),
-          _navIcon(Icons.receipt_long_outlined, () {}),
-          _navIcon(Icons.headset_mic_outlined, () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _navIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Icon(icon, color: Colors.white, size: 26),
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.home,
     );
   }
 }

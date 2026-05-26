@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../app_routes.dart';
+
 class SuccessScreen extends StatelessWidget {
   const SuccessScreen({super.key});
 
@@ -58,7 +60,10 @@ class SuccessScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.index,
+                      (_) => false,
+                    );
                   },
                   child: const Text(
                     'Voltar ao início',

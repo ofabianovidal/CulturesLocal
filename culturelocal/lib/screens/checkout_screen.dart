@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'success_screen.dart';
+
+import '../app_routes.dart';
+import '../widgets/bottom_nav.dart';
 
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
@@ -166,10 +168,7 @@ class CheckoutScreen extends StatelessWidget {
             backgroundColor: _yellow,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SuccessScreen()),
-          ),
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.success),
           child: const Text(
             'Pagar',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
@@ -180,26 +179,8 @@ class CheckoutScreen extends StatelessWidget {
   }
 
   Widget _bottomNav() {
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: _green,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navIcon(Icons.home_outlined),
-          _navIcon(Icons.person_outline),
-          _navIcon(Icons.favorite_border),
-          _navIcon(Icons.receipt_long_outlined),
-          _navIcon(Icons.headset_mic_outlined),
-        ],
-      ),
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.home,
     );
-  }
-
-  Widget _navIcon(IconData icon) {
-    return Icon(icon, color: Colors.white, size: 26);
   }
 }

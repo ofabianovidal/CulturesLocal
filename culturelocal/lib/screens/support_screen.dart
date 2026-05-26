@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../app_routes.dart';
+import '../widgets/bottom_nav.dart';
+
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
 
@@ -53,7 +56,7 @@ class _SupportScreenState extends State<SupportScreen> {
           Row(
             children: [
               GestureDetector(
-                onTap: () => Navigator.maybePop(context),
+                onTap: () => navigateToRootRoute(context, AppRoutes.index),
                 child: const Icon(Icons.chevron_left, size: 28),
               ),
               const Expanded(
@@ -156,29 +159,8 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   Widget _bottomNav() {
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: _green,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navIcon(Icons.home_outlined, () {}),
-          _navIcon(Icons.person_outline, () {}),
-          _navIcon(Icons.favorite_border, () {}),
-          _navIcon(Icons.receipt_long_outlined, () {}),
-          _navIcon(Icons.headset_mic_outlined, () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _navIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Icon(icon, color: Colors.white, size: 26),
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.support,
     );
   }
 }

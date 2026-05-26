@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 
-import 'screens/event_screen.dart';
+import 'app_routes.dart';
 import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
-import 'screens/success_screen.dart';
-import 'screens/notifications_screen.dart';
-import 'screens/filters_screen.dart';
 import 'screens/create_event_screen.dart';
+import 'screens/event_screen.dart';
+import 'screens/favorites_screen.dart';
+import 'screens/filters_screen.dart';
+import 'screens/index_screen.dart';
 import 'screens/support_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/my_events_screen.dart';
+import 'screens/new_password_screen.dart';
+import 'screens/notifications_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/start_screen.dart';
+import 'screens/success_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const CultureLocalApp());
@@ -21,12 +31,27 @@ class CultureLocalApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Culture Local',
-
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-      ),
-
-      home: const MenuScreen(),
+      theme: AppTheme.light,
+      initialRoute: AppRoutes.home,
+      routes: {
+        AppRoutes.home: (_) => const StartScreen(),
+        AppRoutes.index: (_) => const IndexScreen(),
+        AppRoutes.login: (_) => const LoginScreen(),
+        AppRoutes.register: (_) => const RegisterScreen(),
+        AppRoutes.newPassword: (_) => const NewPasswordScreen(),
+        AppRoutes.favorites: (_) => const FavoritesScreen(),
+        AppRoutes.profile: (_) => const ProfileScreen(),
+        AppRoutes.myEvents: (_) => const MyEventsScreen(),
+        AppRoutes.event: (_) => const EventScreen(),
+        AppRoutes.cart: (_) => const CartScreen(),
+        AppRoutes.checkout: (_) => const CheckoutScreen(),
+        AppRoutes.success: (_) => const SuccessScreen(),
+        AppRoutes.notifications: (_) => const NotificationsScreen(),
+        AppRoutes.filters: (_) => const FiltersScreen(),
+        AppRoutes.createEvent: (_) => const CreateEventScreen(),
+        AppRoutes.support: (_) => const SupportScreen(),
+        AppRoutes.prototypeMenu: (_) => const MenuScreen(),
+      },
     );
   }
 }
