@@ -123,18 +123,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     textInputAction: TextInputAction.done,
                   ),
                   const SizedBox(height: 38),
-                  CulturePillButton(
-                    label: 'Atualizar o Perfil',
-                    width: 176,
-                    height: 36,
-                    fontSize: 14,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Perfil atualizado com sucesso!'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CulturePillButton(
+                          label: 'Atualizar o Perfil',
+                          width: double.infinity,
+                          height: 38,
+                          fontSize: 13,
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Perfil atualizado com sucesso!'),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CulturePillButton(
+                          label: 'Criar Evento',
+                          width: double.infinity,
+                          height: 38,
+                          fontSize: 13,
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(AppRoutes.createEvent);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

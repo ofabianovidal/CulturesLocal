@@ -62,8 +62,6 @@ class _IndexScreenState extends State<IndexScreen> {
                         height: 1,
                         color: const Color(0xFFE9D5C4),
                       ),
-                      const SizedBox(height: 20),
-                      _promoBanner(),
                       const SizedBox(height: 90),
                     ],
                   ),
@@ -236,47 +234,4 @@ class _IndexScreenState extends State<IndexScreen> {
     );
   }
 
-  Widget _promoBanner() {
-    return Container(
-      width: double.infinity,
-      height: 165,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0x12F6D15D),
-            Color(0x25F6D15D),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(22, 30, 22, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Experience\nDelicious New Dish',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                height: 1.05,
-              ),
-            ),
-            Spacer(),
-            Text(
-              '30% OFF',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
