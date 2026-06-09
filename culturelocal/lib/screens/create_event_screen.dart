@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../services/firestore_service.dart';
 import '../widgets/bottom_nav.dart';
 
 class CreateEventScreen extends StatefulWidget {
@@ -15,14 +14,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   static const _green = Color(0xFF1A7A3C);
   static const _fieldBg = Color(0xFFF5F0D8);
 
-  final _firestore = FirestoreService();
-
   final _nameCtrl = TextEditingController();
   final _dateCtrl = TextEditingController();
   final _priceCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-
-  bool _salvando = false;
 
   @override
   void dispose() {
@@ -31,49 +26,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     _priceCtrl.dispose();
     _phoneCtrl.dispose();
     super.dispose();
-  }
-
-  /// Lê os campos, valida e grava o evento no Firestore.
-  /// O campo criado_por é preenchido dentro do FirestoreService
-  /// com o e-mail do usuário logado no Firebase Auth.
-  Future<void> _criarEvento() async {
-    final nome = _nameCtrl.text.trim();
-    final data = _dateCtrl.text.trim();
-    final precoTexto =
-        _priceCtrl.text.replaceAll(RegExp(r'[^0-9,.]'), '').replaceAll(',', '.');
-    final telefone = _phoneCtrl.text.trim();
-
-    if (nome.isEmpty || data.isEmpty || precoTexto.isEmpty) {
-      _aviso('Preencha pelo menos nome, data e preço.');
-      return;
-    }
-
-    final preco = double.tryParse(precoTexto);
-    if (preco == null) {
-      _aviso('Preço inválido.');
-      return;
-    }
-
-    setState(() => _salvando = true);
-    try {
-      await _firestore.criarEvento(
-        nome: nome,
-        data: data,
-        preco: preco,
-        telefone: telefone,
-      );
-      _aviso('Evento criado com sucesso!');
-      if (mounted) Navigator.maybePop(context);
-    } catch (e) {
-      _aviso('Erro ao salvar: $e');
-    } finally {
-      if (mounted) setState(() => _salvando = false);
-    }
-  }
-
-  void _aviso(String msg) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -94,11 +46,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const SizedBox(height: 24),
                     _label('Nome do Evento'),
                     const SizedBox(height: 8),
-                    _field(controller: _nameCtrl, hint: 'Festival Sertanejo'),
+                    _field(controller: _nameCtrl, hint: 'Asd Asd'),
                     const SizedBox(height: 16),
                     _label('Data'),
                     const SizedBox(height: 8),
-                    _field(controller: _dateCtrl, hint: '01/01/2026'),
+                    _field(controller: _dateCtrl, hint: '01 /01 /2001'),
                     const SizedBox(height: 16),
                     _label('Preço'),
                     const SizedBox(height: 8),
@@ -208,17 +160,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           backgroundColor: _green,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         ),
-        onPressed: _salvando ? null : _criarEvento,
-        child: _salvando
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-              )
-            : const Text(
-                'Criar Evento',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-              ),
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Evento criado com sucesso!')),
+          );
+        },
+        child: const Text(
+          'Criar Evento',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+        ),
       ),
     );
   }

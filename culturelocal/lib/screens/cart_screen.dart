@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
-import '../models/evento.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/event_card.dart';
 
-/// Carrinho. Recebe o Evento pelos argumentos da rota (definidos no EventScreen).
-/// Se nenhum evento for passado, mostra um aviso.
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -14,43 +12,16 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  int _qty = 2;
   static const _green = Color(0xFF1A7A3C);
-  static const _darkGreen = Color(0xFF145F2E);
   static const _yellow = Color(0xFFE4C65A);
 
-  int _qty = 1;
-  Evento? _evento;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Lê o evento passado como argumento da rota.
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Evento) _evento = args;
-  }
-
-  double get _subtotal => _qty * (_evento?.preco ?? 0);
+  double get _subtotal => _qty * 10.0;
   double get _taxa => 1.0;
   double get _total => _subtotal + _taxa;
 
   @override
   Widget build(BuildContext context) {
-    if (_evento == null) {
-      return const Scaffold(
-        backgroundColor: _green,
-        body: Center(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Text(
-              'Nenhum evento selecionado.\nVolte e escolha um evento.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: _green,
       body: SafeArea(
@@ -66,12 +37,13 @@ class _CartScreenState extends State<CartScreen> {
                     _cartItem(),
                     const SizedBox(height: 40),
                     _summary(),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
             _checkoutButton(context),
-            const CultureBottomNav(currentItem: CultureBottomNavItem.myEvents),
+            _bottomNav(),
           ],
         ),
       ),
@@ -89,11 +61,20 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const Expanded(
             child: Center(
-              child: Text('Carrinho',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Text(
+                'Carrinho',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
             ),
           ),
-          const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 22),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 22),
+          ),
         ],
       ),
     );
@@ -110,41 +91,47 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Container(
+            child: const CultureEventPoster(
               width: 64,
               height: 64,
-              color: Colors.grey.shade300,
-              child: const Icon(Icons.image, color: Colors.white54, size: 30),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
           const SizedBox(width: 14),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_evento!.nome,
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(_evento!.data, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                Text('Festa Sertaneja', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15)),
+                SizedBox(height: 4),
+                Text('01/11/01', style: TextStyle(color: Colors.white60, fontSize: 12)),
               ],
             ),
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Row(
                 children: [
-                  _qtyBtn(Icons.remove, () { if (_qty > 1) setState(() => _qty--); }),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text('$_qty',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(color: _yellow, shape: BoxShape.circle),
                   ),
-                  _qtyBtn(Icons.add, () => setState(() => _qty++)),
+                  const SizedBox(width: 4),
+                  Text('$_qty', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () {},
+                    child: const Icon(Icons.cancel, color: Colors.white54, size: 18),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
-              Text('R\$ ${_subtotal.toStringAsFixed(0)}',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Text(
+                'R\$ ${(_qty * 10).toStringAsFixed(0)}',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
             ],
           ),
         ],
@@ -152,30 +139,39 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _qtyBtn(IconData icon, VoidCallback onTap) {
-    return GestureDetector(onTap: onTap, child: Icon(icon, color: Colors.white, size: 18));
-  }
-
   Widget _summary() {
     return Column(
       children: [
-        _row('Subtotal', 'R\$ ${_subtotal.toStringAsFixed(0)}'),
+        _summaryRow('Subtotal', 'R\$ ${_subtotal.toStringAsFixed(0)}'),
         const SizedBox(height: 10),
-        _row('Taxa', 'R\$ ${_taxa.toStringAsFixed(0)}'),
-        const Divider(color: Colors.white24, height: 30),
+        _summaryRow('Taxa', 'R\$ ${_taxa.toStringAsFixed(0)}'),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              Expanded(child: Container(height: 1, color: Colors.white24)),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text('- - - - -', style: TextStyle(color: Colors.white38, letterSpacing: 2)),
+              ),
+              Expanded(child: Container(height: 1, color: Colors.white24)),
+            ],
+          ),
+        ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Text('Total', style: TextStyle(color: Colors.white70)),
-            Text('R\$ ${_total.toStringAsFixed(0)}',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+            Text(
+              'R\$ ${_total.toStringAsFixed(0)}',
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _row(String label, String value) {
+  Widget _summaryRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -196,20 +192,19 @@ class _CartScreenState extends State<CartScreen> {
             backgroundColor: _yellow,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-          // Passa um mapa simples com os dados do pedido para o checkout.
-          onPressed: () => Navigator.pushNamed(
-            context,
-            AppRoutes.checkout,
-            arguments: {
-              'nomeEvento': _evento!.nome,
-              'quantidade': _qty,
-              'total': _total,
-            },
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.checkout),
+          child: const Text(
+            'Finalizar',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
           ),
-          child: const Text('Finalizar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
         ),
       ),
+    );
+  }
+
+  Widget _bottomNav() {
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.home,
     );
   }
 }

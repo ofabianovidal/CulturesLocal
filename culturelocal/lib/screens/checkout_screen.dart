@@ -1,88 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
-import '../services/firestore_service.dart';
+import '../widgets/bottom_nav.dart';
 
-/// Pagamento (simulado) + gravação do pedido no Firestore.
-/// Recebe nomeEvento, quantidade e total pelos argumentos da rota.
-class CheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
 
-  @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
-}
-
-class _CheckoutScreenState extends State<CheckoutScreen> {
   static const _yellow = Color(0xFFE4C65A);
   static const _green = Color(0xFF1A7A3C);
-  static const _fieldBg = Color(0xFFF5F0D8);
-
-  final _firestore = FirestoreService();
-  final _enderecoCtrl = TextEditingController(text: 'Avenida ASD, 144');
-  final _cartaoCtrl = TextEditingController();
-
-  String _nomeEvento = 'Evento';
-  int _quantidade = 1;
-  double _total = 0;
-
-  bool _autorizado = false;
-  bool _processando = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Map) {
-      _nomeEvento = args['nomeEvento'] ?? 'Evento';
-      _quantidade = args['quantidade'] ?? 1;
-      _total = (args['total'] ?? 0).toDouble();
-    }
-  }
-
-  @override
-  void dispose() {
-    _enderecoCtrl.dispose();
-    _cartaoCtrl.dispose();
-    super.dispose();
-  }
-
-  /// Pagamento é apenas SIMULADO (combinado com a professora).
-  /// Marcamos como autorizado e gravamos o pedido no Firestore.
-  Future<void> _pagar() async {
-    if (!_autorizado) {
-      _aviso('Autorize o pagamento marcando a opção do cartão.');
-      return;
-    }
-    final cartao = _cartaoCtrl.text.trim();
-    if (cartao.length < 4) {
-      _aviso('Digite ao menos os 4 últimos dígitos do cartão.');
-      return;
-    }
-
-    setState(() => _processando = true);
-    try {
-      final mascarado = '**** **** **** ${cartao.substring(cartao.length - 4)}';
-      await _firestore.criarPedido(
-        nomeEvento: _nomeEvento,
-        quantidade: _quantidade,
-        total: _total,
-        enderecoCobranca: _enderecoCtrl.text.trim(),
-        cartaoMascarado: mascarado,
-      );
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.success);
-      }
-    } catch (e) {
-      _aviso('Erro ao processar pedido: $e');
-    } finally {
-      if (mounted) setState(() => _processando = false);
-    }
-  }
-
-  void _aviso(String msg) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +15,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       backgroundColor: _yellow,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _header(context),
             Expanded(
@@ -98,72 +24,69 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _card(
+                    _sectionCard(
                       title: 'Endereço De Cobrança',
-                      child: TextField(controller: _enderecoCtrl, decoration: _input()),
+                      trailingIcon: Icons.edit_outlined,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F0D8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text('Avenida ASD, 144', style: TextStyle(fontSize: 14)),
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    _card(
+                    _sectionCard(
                       title: 'Pedido',
+                      trailingLabel: 'Editar',
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(_nomeEvento,
-                                  style: const TextStyle(fontWeight: FontWeight.w600)),
-                              Text('$_quantidade item(s)',
-                                  style: const TextStyle(color: Colors.black45, fontSize: 13)),
+                            children: const [
+                              Text('Festa Sertaneja', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                              SizedBox(height: 2),
+                              Text('2 items', style: TextStyle(color: Colors.black45, fontSize: 13)),
                             ],
                           ),
-                          Text('R\$ ${_total.toStringAsFixed(0)}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const Text('R\$ 21', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _card(
-                      title: 'Método de Pagamento (simulado)',
-                      child: Column(
+                    _sectionCard(
+                      title: 'Método de Pagamento',
+                      trailingLabel: 'Editar',
+                      child: Row(
                         children: [
-                          TextField(
-                            controller: _cartaoCtrl,
-                            keyboardType: TextInputType.number,
-                            decoration: _input(hint: 'Últimos dígitos do cartão'),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.credit_card, size: 20, color: Colors.black54),
                           ),
-                          const SizedBox(height: 8),
-                          CheckboxListTile(
-                            contentPadding: EdgeInsets.zero,
-                            activeColor: _green,
-                            value: _autorizado,
-                            onChanged: (v) => setState(() => _autorizado = v ?? false),
-                            title: const Text('Autorizo a cobrança neste cartão',
-                                style: TextStyle(fontSize: 13)),
+                          const SizedBox(width: 12),
+                          const Text(
+                            '**** **** 43 /00 /000',
+                            style: TextStyle(fontSize: 14, color: Colors.black87),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
             ),
-            _payButton(),
+            _payButton(context),
+            _bottomNav(),
           ],
         ),
-      ),
-    );
-  }
-
-  InputDecoration _input({String? hint}) {
-    return InputDecoration(
-      hintText: hint,
-      filled: true,
-      fillColor: _fieldBg,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
       ),
     );
   }
@@ -179,8 +102,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           const Expanded(
             child: Center(
-              child: Text('Pagamento',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              child: Text(
+                'Pagamento',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           const SizedBox(width: 28),
@@ -189,15 +114,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _card({required String title, required Widget child}) {
+  Widget _sectionCard({
+    required String title,
+    IconData? trailingIcon,
+    String? trailingLabel,
+    required Widget child,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              if (trailingIcon != null)
+                Icon(trailingIcon, size: 18, color: Colors.black54),
+              if (trailingLabel != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _green,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    trailingLabel,
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 12),
           child,
         ],
@@ -205,9 +157,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _payButton() {
+  Widget _payButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: SizedBox(
         width: double.infinity,
         height: 52,
@@ -216,15 +168,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             backgroundColor: _yellow,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           ),
-          onPressed: _processando ? null : _pagar,
-          child: _processando
-              ? const SizedBox(
-                  width: 22, height: 22,
-                  child: CircularProgressIndicator(color: Colors.black54, strokeWidth: 2))
-              : const Text('Pagar',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.success),
+          child: const Text(
+            'Pagar',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _bottomNav() {
+    return const CultureBottomNav(
+      currentItem: CultureBottomNavItem.home,
     );
   }
 }
