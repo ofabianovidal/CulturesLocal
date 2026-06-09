@@ -51,11 +51,7 @@ class CulturePillButton extends StatelessWidget {
 }
 
 class CultureSocialButton extends StatelessWidget {
-  const CultureSocialButton({
-    super.key,
-    required this.child,
-    this.onTap,
-  });
+  const CultureSocialButton({super.key, required this.child, this.onTap});
 
   final Widget child;
   final VoidCallback? onTap;
@@ -65,19 +61,12 @@ class CultureSocialButton extends StatelessWidget {
     return Material(
       color: AppColors.yellow,
       shape: const CircleBorder(
-        side: BorderSide(
-          color: AppColors.green,
-          width: 1.2,
-        ),
+        side: BorderSide(color: AppColors.green, width: 1.2),
       ),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
-        child: SizedBox(
-          width: 34,
-          height: 34,
-          child: Center(child: child),
-        ),
+        child: SizedBox(width: 34, height: 34, child: Center(child: child)),
       ),
     );
   }

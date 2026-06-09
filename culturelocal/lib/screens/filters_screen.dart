@@ -13,7 +13,6 @@ class FiltersScreen extends StatefulWidget {
 class _FiltersScreenState extends State<FiltersScreen> {
   static const _yellow = Color(0xFFE4C65A);
   static const _green = Color(0xFF1A7A3C);
-  static const _neon = Color(0xFFC8F53C);
 
   int _selectedCategory = 0;
   int _stars = 4;
@@ -116,10 +115,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
   }
 
   Widget _headerIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Icon(icon, size: 24),
-    );
+    return GestureDetector(onTap: onTap, child: Icon(icon, size: 24));
   }
 
   Widget _sectionLabel(String text, {Color color = Colors.black87}) {
@@ -151,7 +147,10 @@ class _FiltersScreenState extends State<FiltersScreen> {
               const SizedBox(height: 6),
               Text(
                 _categories[i].$2,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -213,7 +212,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
             activeTrackColor: _green,
             inactiveTrackColor: Colors.grey.shade200,
             thumbColor: _green,
-            overlayColor: _green.withOpacity(0.15),
+            overlayColor: _green.withValues(alpha: 0.15),
             trackHeight: 4,
           ),
           child: Slider(
@@ -228,10 +227,22 @@ class _FiltersScreenState extends State<FiltersScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('R\$10', style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text('R\$50', style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text('R\$100', style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text('R\$200 >', style: TextStyle(fontSize: 12, color: Colors.black54)),
+              Text(
+                'R\$10',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              Text(
+                'R\$50',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              Text(
+                'R\$100',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              Text(
+                'R\$200 >',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
             ],
           ),
         ),
@@ -246,20 +257,24 @@ class _FiltersScreenState extends State<FiltersScreen> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: _green,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
         ),
         onPressed: () => Navigator.maybePop(context),
         child: const Text(
           'Aplicar',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
 
   Widget _bottomNav() {
-    return const CultureBottomNav(
-      currentItem: CultureBottomNavItem.home,
-    );
+    return const CultureBottomNav(currentItem: CultureBottomNavItem.home);
   }
 }

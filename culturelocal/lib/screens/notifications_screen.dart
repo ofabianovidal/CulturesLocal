@@ -40,8 +40,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                 ),
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  children: _prefs.entries.map((e) => _notifRow(e.key, e.value)).toList(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  children: _prefs.entries
+                      .map((e) => _notifRow(e.key, e.value))
+                      .toList(),
                 ),
               ),
             ),
@@ -81,10 +86,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
           Switch(
             value: value,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: _green,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: _yellow,
@@ -96,8 +104,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _bottomNav() {
-    return const CultureBottomNav(
-      currentItem: CultureBottomNavItem.home,
-    );
+    return const CultureBottomNav(currentItem: CultureBottomNavItem.home);
   }
 }

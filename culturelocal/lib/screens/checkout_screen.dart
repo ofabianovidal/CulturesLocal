@@ -29,12 +29,18 @@ class CheckoutScreen extends StatelessWidget {
                       trailingIcon: Icons.edit_outlined,
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF5F0D8),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text('Avenida ASD, 144', style: TextStyle(fontSize: 14)),
+                        child: const Text(
+                          'Avenida ASD, 144',
+                          style: TextStyle(fontSize: 14),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -47,12 +53,30 @@ class CheckoutScreen extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
-                              Text('Festa Sertaneja', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                              Text(
+                                'Festa Sertaneja',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
                               SizedBox(height: 2),
-                              Text('2 items', style: TextStyle(color: Colors.black45, fontSize: 13)),
+                              Text(
+                                '2 items',
+                                style: TextStyle(
+                                  color: Colors.black45,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ],
                           ),
-                          const Text('R\$ 21', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const Text(
+                            'R\$ 21',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -68,12 +92,19 @@ class CheckoutScreen extends StatelessWidget {
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.credit_card, size: 20, color: Colors.black54),
+                            child: const Icon(
+                              Icons.credit_card,
+                              size: 20,
+                              color: Colors.black54,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           const Text(
                             '**** **** 43 /00 /000',
-                            style: TextStyle(fontSize: 14, color: Colors.black87),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
                           ),
                         ],
                       ),
@@ -133,19 +164,32 @@ class CheckoutScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
               if (trailingIcon != null)
                 Icon(trailingIcon, size: 18, color: Colors.black54),
               if (trailingLabel != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: _green,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     trailingLabel,
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
             ],
@@ -166,12 +210,18 @@ class CheckoutScreen extends StatelessWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: _yellow,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
           ),
           onPressed: () => Navigator.of(context).pushNamed(AppRoutes.success),
           child: const Text(
             'Pagar',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
           ),
         ),
       ),
@@ -179,8 +229,6 @@ class CheckoutScreen extends StatelessWidget {
   }
 
   Widget _bottomNav() {
-    return const CultureBottomNav(
-      currentItem: CultureBottomNavItem.home,
-    );
+    return const CultureBottomNav(currentItem: CultureBottomNavItem.home);
   }
 }

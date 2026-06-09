@@ -92,17 +92,27 @@ class CultureEventCard extends StatelessWidget {
   const CultureEventCard({
     super.key,
     required this.onTap,
+    required this.title,
+    required this.description,
+    required this.dateLabel,
     this.showPrice = true,
     this.showFavoriteBadge = true,
     this.posterWidth = 154,
     this.posterHeight = 118,
+    this.priceLabel = '',
+    this.topRight,
   });
 
   final VoidCallback onTap;
+  final String title;
+  final String description;
+  final String dateLabel;
   final bool showPrice;
   final bool showFavoriteBadge;
   final double posterWidth;
   final double posterHeight;
+  final String priceLabel;
+  final Widget? topRight;
 
   @override
   Widget build(BuildContext context) {
@@ -116,10 +126,7 @@ class CultureEventCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CultureEventPoster(
-                width: posterWidth,
-                height: posterHeight,
-              ),
+              CultureEventPoster(width: posterWidth, height: posterHeight),
               const SizedBox(width: 16),
               Expanded(
                 child: Padding(
@@ -130,17 +137,19 @@ class CultureEventCard extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Música ao Vivo',
-                              style: TextStyle(
+                              title,
+                              style: const TextStyle(
                                 color: AppColors.green,
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
-                          if (showFavoriteBadge)
+                          if (topRight != null)
+                            topRight!
+                          else if (showFavoriteBadge)
                             const Padding(
                               padding: EdgeInsets.only(top: 2),
                               child: Icon(
@@ -152,8 +161,8 @@ class CultureEventCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 2),
-                      const Text(
-                        'Sertanejo raiz ao vivo',
+                      Text(
+                        description,
                         style: TextStyle(
                           color: AppColors.text,
                           fontSize: 14,
@@ -161,8 +170,8 @@ class CultureEventCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      const Text(
-                        '29 Nov, 01:20 pm',
+                      Text(
+                        dateLabel,
                         style: TextStyle(
                           color: AppColors.text,
                           fontSize: 14,
@@ -171,8 +180,8 @@ class CultureEventCard extends StatelessWidget {
                       ),
                       if (showPrice) ...[
                         const SizedBox(height: 14),
-                        const Text(
-                          'R\$20.00',
+                        Text(
+                          priceLabel,
                           style: TextStyle(
                             color: AppColors.green,
                             fontSize: 20,

@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function institutionalEmail() {
+      return signedIn()
+        && request.auth.token.email is string
+        && request.auth.token.email.matches('.*@souunit\\.com\\.br$');
+    }
+
+    function ownsUser(userId) {
+      return institutionalEmail() && request.auth.uid == userId;
+    }
+
+    function ownsEvent() {
+      return institutionalEmail()
+        && resource.data.uid_criador == request.auth.uid
+        && resource.data.criado_por == request.auth.token.email;
+    }
+
+    match /users/{userId} {
+      allow read: if ownsUser(userId);
+
+      allow create: if ownsUser(userId)
+        && request.resource.data.criado_por == request.auth.token.email;
+
+      allow update: if ownsUser(userId)
+        && request.resource.data.criado_por == request.auth.token.email;
+
+      allow delete: if ownsUser(userId);
+
+      match /favorites/{eventId} {
+        allow read: if ownsUser(userId);
+
+        allow create, update: if ownsUser(userId)
+          && request.resource.data.criado_por == request.auth.token.email
+          && request.resource.data.uid_usuario == request.auth.uid;
+
+        allow delete: if ownsUser(userId);
+      }
+    }
+
+    match /events/{eventId} {
+      allow read: if institutionalEmail();
+
+      allow create: if institutionalEmail()
+        && request.resource.data.criado_por == request.auth.token.email
+        && request.resource.data.uid_criador == request.auth.uid;
+
+      allow update: if ownsEvent()
+        && request.resource.data.criado_por == request.auth.token.email
+        && request.resource.data.uid_criador == request.auth.uid;
+
+      allow delete: if ownsEvent();
+    }
+  }
+}

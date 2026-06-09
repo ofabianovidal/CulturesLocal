@@ -35,8 +35,14 @@ class _SupportScreenState extends State<SupportScreen> {
             _topBanner(context),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                children: List.generate(_items.length, (i) => _expandableItem(i)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                children: List.generate(
+                  _items.length,
+                  (i) => _expandableItem(i),
+                ),
               ),
             ),
             _bottomNav(),
@@ -73,7 +79,11 @@ class _SupportScreenState extends State<SupportScreen> {
           const SizedBox(height: 4),
           const Text(
             'Precisa De Ajuda?',
-            style: TextStyle(color: _green, fontWeight: FontWeight.w600, fontSize: 14),
+            style: TextStyle(
+              color: _green,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 16),
           Container(
@@ -86,7 +96,11 @@ class _SupportScreenState extends State<SupportScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _tabBtn('FAQ', _showFaq, () => setState(() => _showFaq = true)),
-                _tabBtn('Nos Ligue', !_showFaq, () => setState(() => _showFaq = false)),
+                _tabBtn(
+                  'Nos Ligue',
+                  !_showFaq,
+                  () => setState(() => _showFaq = false),
+                ),
               ],
             ),
           ),
@@ -101,7 +115,9 @@ class _SupportScreenState extends State<SupportScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
-          color: active ? (_showFaq && label == 'FAQ' ? _yellow : _green) : Colors.transparent,
+          color: active
+              ? (_showFaq && label == 'FAQ' ? _yellow : _green)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(26),
         ),
         child: Text(
@@ -109,7 +125,9 @@ class _SupportScreenState extends State<SupportScreen> {
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 14,
-            color: active ? (_showFaq && label == 'FAQ' ? Colors.black87 : Colors.white) : Colors.black54,
+            color: active
+                ? (_showFaq && label == 'FAQ' ? Colors.black87 : Colors.white)
+                : Colors.black54,
           ),
         ),
       ),
@@ -144,7 +162,10 @@ class _SupportScreenState extends State<SupportScreen> {
               Expanded(
                 child: Text(
                   item.$2,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               Icon(
@@ -159,8 +180,6 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   Widget _bottomNav() {
-    return const CultureBottomNav(
-      currentItem: CultureBottomNavItem.support,
-    );
+    return const CultureBottomNav(currentItem: CultureBottomNavItem.support);
   }
 }

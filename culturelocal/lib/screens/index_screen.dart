@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
+import '../models/app_event.dart';
+import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/event_card.dart';
@@ -48,29 +50,57 @@ class _IndexScreenState extends State<IndexScreen> {
                   color: AppColors.softPanel,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
                 ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
-                  child: Column(
-                    children: [
-                      CultureEventCard(
-                        onTap: () {
-                          Navigator.of(context).pushNamed(AppRoutes.event);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        height: 1,
-                        color: const Color(0xFFE9D5C4),
-                      ),
-                      const SizedBox(height: 90),
-                    ],
-                  ),
+                child: StreamBuilder<List<AppEvent>>(
+                  stream: FirestoreService.instance.watchPublicEvents(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final events = snapshot.data ?? const <AppEvent>[];
+                    if (events.isEmpty) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(28),
+                          child: Text(
+                            'Nenhum evento cadastrado ainda.\nCrie o primeiro em "Meus eventos".',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppColors.green,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(18, 20, 18, 90),
+                      itemCount: events.length,
+                      separatorBuilder: (_, _) =>
+                          Container(height: 1, color: const Color(0xFFE9D5C4)),
+                      itemBuilder: (context, index) {
+                        final event = events[index];
+                        return CultureEventCard(
+                          onTap: () {
+                            Navigator.of(
+                              context,
+                            ).pushNamed(AppRoutes.event, arguments: event);
+                          },
+                          title: event.nome,
+                          description: event.descricao,
+                          dateLabel: event.formattedDate,
+                          priceLabel: event.formattedPrice,
+                          showFavoriteBadge: false,
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ),
-            const CultureBottomNav(
-              currentItem: CultureBottomNavItem.home,
-            ),
+            const CultureBottomNav(currentItem: CultureBottomNavItem.home),
           ],
         ),
       ),
@@ -92,7 +122,7 @@ class _IndexScreenState extends State<IndexScreen> {
               children: [
                 const Expanded(
                   child: Text(
-                    'Search',
+                    'Eventos em tempo real no Firebase',
                     style: TextStyle(
                       color: Color(0xFF9F9F9F),
                       fontSize: 12,
@@ -136,10 +166,7 @@ class _IndexScreenState extends State<IndexScreen> {
     );
   }
 
-  Widget _topAction({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _topAction({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -149,11 +176,7 @@ class _IndexScreenState extends State<IndexScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: AppColors.green,
-        ),
+        child: Icon(icon, size: 20, color: AppColors.green),
       ),
     );
   }
@@ -226,12 +249,7 @@ class _IndexScreenState extends State<IndexScreen> {
         color: const Color(0xFFFBE89A),
         borderRadius: BorderRadius.circular(29),
       ),
-      child: Icon(
-        icon,
-        size: 31,
-        color: Colors.black,
-      ),
+      child: Icon(icon, size: 31, color: Colors.black),
     );
   }
-
 }

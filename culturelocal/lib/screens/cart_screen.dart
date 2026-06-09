@@ -12,7 +12,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  int _qty = 2;
+  final int _qty = 2;
   static const _green = Color(0xFF1A7A3C);
   static const _yellow = Color(0xFFE4C65A);
 
@@ -57,23 +57,35 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           GestureDetector(
             onTap: () => Navigator.maybePop(context),
-            child: const Icon(Icons.chevron_left, size: 28, color: Colors.white),
+            child: const Icon(
+              Icons.chevron_left,
+              size: 28,
+              color: Colors.white,
+            ),
           ),
           const Expanded(
             child: Center(
               child: Text(
                 'Carrinho',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 22),
+            child: const Icon(
+              Icons.shopping_cart_outlined,
+              color: Colors.white,
+              size: 22,
+            ),
           ),
         ],
       ),
@@ -84,7 +96,7 @@ class _CartScreenState extends State<CartScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -102,9 +114,19 @@ class _CartScreenState extends State<CartScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Festa Sertaneja', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15)),
+                Text(
+                  'Festa Sertaneja',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 15,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('01/11/01', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                Text(
+                  '01/11/01',
+                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -116,21 +138,38 @@ class _CartScreenState extends State<CartScreen> {
                   Container(
                     width: 8,
                     height: 8,
-                    decoration: const BoxDecoration(color: _yellow, shape: BoxShape.circle),
+                    decoration: const BoxDecoration(
+                      color: _yellow,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                   const SizedBox(width: 4),
-                  Text('$_qty', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text(
+                    '$_qty',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {},
-                    child: const Icon(Icons.cancel, color: Colors.white54, size: 18),
+                    child: const Icon(
+                      Icons.cancel,
+                      color: Colors.white54,
+                      size: 18,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
                 'R\$ ${(_qty * 10).toStringAsFixed(0)}',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ],
           ),
@@ -152,7 +191,10 @@ class _CartScreenState extends State<CartScreen> {
               Expanded(child: Container(height: 1, color: Colors.white24)),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('- - - - -', style: TextStyle(color: Colors.white38, letterSpacing: 2)),
+                child: Text(
+                  '- - - - -',
+                  style: TextStyle(color: Colors.white38, letterSpacing: 2),
+                ),
               ),
               Expanded(child: Container(height: 1, color: Colors.white24)),
             ],
@@ -163,7 +205,11 @@ class _CartScreenState extends State<CartScreen> {
           children: [
             Text(
               'R\$ ${_total.toStringAsFixed(0)}',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
           ],
         ),
@@ -175,8 +221,18 @@ class _CartScreenState extends State<CartScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 15)),
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 15),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
+        ),
       ],
     );
   }
@@ -190,12 +246,18 @@ class _CartScreenState extends State<CartScreen> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: _yellow,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
           ),
           onPressed: () => Navigator.of(context).pushNamed(AppRoutes.checkout),
           child: const Text(
             'Finalizar',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
           ),
         ),
       ),
@@ -203,8 +265,6 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _bottomNav() {
-    return const CultureBottomNav(
-      currentItem: CultureBottomNavItem.home,
-    );
+    return const CultureBottomNav(currentItem: CultureBottomNavItem.home);
   }
 }
