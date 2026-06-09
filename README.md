@@ -4,8 +4,8 @@
 
 | Nome do Aluno | Telas sob sua responsabilidade | Link do Video de Defesa |
 | --- | --- | --- |
-| Fabiano Vidal | Tela de Login, Cadastro, Nova Senha, Index, Favoritos, Perfil, Meus Eventos | Adicionar link |
-| Kleberson Costa | Notificacoes, Carrinho, Finalizar Compra, Suporte, Criar Evento, Filtros, Evento | Adicionar link |
+| Fabiano Vidal | Tela de Login, Cadastro, Nova Senha, Index, Favoritos, Perfil, Meus Eventos | defesa de ambos no mesmo video |
+| Kleberson Costa | Notificacoes, Carrinho, Finalizar Compra, Suporte, Criar Evento, Filtros, Evento | https://youtu.be/HdMaaxMeRJ0 |
 
 ## Entrega tecnica da atividade
 
