@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+import 'firebase_options.dart';
 import 'app_routes.dart';
 import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
@@ -19,7 +21,12 @@ import 'screens/start_screen.dart';
 import 'screens/success_screen.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+// main() virou assíncrono para inicializar o Firebase antes do app subir.
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const CultureLocalApp());
 }
 
@@ -51,6 +58,7 @@ class CultureLocalApp extends StatelessWidget {
         AppRoutes.createEvent: (_) => const CreateEventScreen(),
         AppRoutes.support: (_) => const SupportScreen(),
         AppRoutes.prototypeMenu: (_) => const MenuScreen(),
+        
       },
     );
   }
@@ -63,114 +71,44 @@ class MenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE4C65A),
-
       appBar: AppBar(
         backgroundColor: Colors.green,
         elevation: 0,
-
         title: const Text(
           'Culture Local',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
-
       body: ListView(
         padding: const EdgeInsets.all(20),
-
         children: [
-
-          openScreen(
-            context,
-            'Evento',
-            const EventScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Carrinho',
-            const CartScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Pagamento',
-            const CheckoutScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Compra Finalizada',
-            const SuccessScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Notificações',
-            const NotificationsScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Filtros',
-            const FiltersScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Criar Evento',
-            const CreateEventScreen(),
-          ),
-
-          openScreen(
-            context,
-            'Suporte',
-            const SupportScreen(),
-          ),
+          _open(context, 'Evento', AppRoutes.event),
+          _open(context, 'Carrinho', AppRoutes.cart),
+          _open(context, 'Pagamento', AppRoutes.checkout),
+          _open(context, 'Compra Finalizada', AppRoutes.success),
+          _open(context, 'Notificações', AppRoutes.notifications),
+          _open(context, 'Filtros', AppRoutes.filters),
+          _open(context, 'Criar Evento', AppRoutes.createEvent),
+          _open(context, 'Suporte', AppRoutes.support),
         ],
       ),
     );
   }
 
-  Widget openScreen(
-    BuildContext context,
-    String title,
-    Widget screen,
-  ) {
-
+  Widget _open(BuildContext context, String title, String route) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
-
       child: SizedBox(
         height: 56,
-
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
-
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           ),
-
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => screen,
-              ),
-            );
-          },
-
+          onPressed: () => Navigator.pushNamed(context, route),
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
           ),
         ),
       ),

@@ -6,6 +6,7 @@ class SuccessScreen extends StatelessWidget {
   const SuccessScreen({super.key});
 
   static const _yellow = Color(0xFFE4C65A);
+  static const _green = Color(0xFF1A7A3C);
 
   @override
   Widget build(BuildContext context) {
@@ -14,25 +15,19 @@ class SuccessScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(
+            const Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.check_circle,
-                    size: 130,
-                    color: Color(0xFF2DB84B),
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Pedido Confirmado',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  const Padding(
+                  Icon(Icons.check_circle, size: 130, color: Color(0xFF2DB84B)),
+                  SizedBox(height: 32),
+                  Text('Pedido Confirmado',
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 12),
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 40),
                     child: Text(
-                      'Seu pedido foi concluído com sucesso, mais informações no Email.',
+                      'Seu pedido foi concluído com sucesso, mais informações no e-mail.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.5),
                     ),
@@ -40,13 +35,11 @@ class SuccessScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: const Text(
-                'Para qualquer dúvida, consulte o suporte.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.black45),
-              ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text('Para qualquer dúvida, consulte o suporte.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: Colors.black45)),
             ),
             const SizedBox(height: 24),
             Padding(
@@ -56,19 +49,14 @@ class SuccessScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A7A3C),
+                    backgroundColor: _green,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      AppRoutes.index,
-                      (_) => false,
-                    );
-                  },
-                  child: const Text(
-                    'Voltar ao início',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                  ),
+                  // Volta para a tela de eventos, limpando a pilha de compra.
+                  onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                    context, AppRoutes.event, (_) => false),
+                  child: const Text('Voltar aos eventos',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                 ),
               ),
             ),

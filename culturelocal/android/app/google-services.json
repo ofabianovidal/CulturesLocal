@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "122927839963",
+    "project_id": "culturelocal-b8f51",
+    "storage_bucket": "culturelocal-b8f51.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122927839963:android:9a628f85d88ff3dde1aafe",
+        "android_client_info": {
+          "package_name": "com.example.culturelocal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122927839963-5sfr53p3h3uns8djqgjv6hkb8rlom58s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBckdGEkQc-BpYmjGb8EajdO_ZH7ryA2Do"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122927839963-5sfr53p3h3uns8djqgjv6hkb8rlom58s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
