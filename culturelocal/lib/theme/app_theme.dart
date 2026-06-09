@@ -18,9 +18,7 @@ class AppTheme {
       useMaterial3: false,
       fontFamily: 'Roboto',
       scaffoldBackgroundColor: AppColors.green,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.green,
-      ).copyWith(
+      colorScheme: ColorScheme.fromSeed(seedColor: AppColors.green).copyWith(
         primary: AppColors.green,
         secondary: AppColors.yellow,
         surface: Colors.white,

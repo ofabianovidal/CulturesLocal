@@ -3,13 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_routes.dart';
 import '../theme/app_theme.dart';
 
-enum CultureBottomNavItem {
-  home,
-  profile,
-  favorites,
-  myEvents,
-  support,
-}
+enum CultureBottomNavItem { home, profile, favorites, myEvents, support }
 
 void navigateToRootRoute(BuildContext context, String routeName) {
   if (ModalRoute.of(context)?.settings.name == routeName) {
@@ -20,10 +14,7 @@ void navigateToRootRoute(BuildContext context, String routeName) {
 }
 
 class CultureBottomNav extends StatelessWidget {
-  const CultureBottomNav({
-    super.key,
-    required this.currentItem,
-  });
+  const CultureBottomNav({super.key, required this.currentItem});
 
   final CultureBottomNavItem currentItem;
 
@@ -97,11 +88,7 @@ class _BottomNavButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: isActive ? 28 : 26,
-        ),
+        child: Icon(icon, color: Colors.white, size: isActive ? 28 : 26),
       ),
     );
   }

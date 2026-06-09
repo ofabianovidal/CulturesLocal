@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../app_routes.dart';
+import '../models/app_order.dart';
+import '../services/firestore_service.dart';
 import '../widgets/bottom_nav.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -13,7 +16,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   static const _yellow = Color(0xFFE4C65A);
   static const _green = Color(0xFF1A7A3C);
 
-  // true = verde, false = amarelo
   final Map<String, bool> _prefs = {
     'Gerais': true,
     'Sons': true,
@@ -37,15 +39,105 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(28)),
                 ),
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  children: _prefs.entries.map((e) => _notifRow(e.key, e.value)).toList(),
+                child: StreamBuilder<List<AppOrder>>(
+                  stream: FirestoreService.instance.watchMyOrders(),
+                  builder: (context, snapshot) {
+                    final orders = snapshot.data ?? const <AppOrder>[];
+
+                    return ListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      children: [
+                        if (orders.isNotEmpty) ...[
+                          const Text(
+                            'Confirmações de Pedidos',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF2DB84B),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...orders.take(5).map(
+                                (order) => _orderNotification(context, order),
+                              ),
+                          const Divider(height: 28),
+                        ],
+                        const Text(
+                          'Preferências',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ..._prefs.entries
+                            .map((e) => _notifRow(e.key, e.value)),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
             _bottomNav(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _orderNotification(BuildContext context, AppOrder order) {
+    final names = order.items.map((i) => '${i.qty}x ${i.eventNome}').join(', ');
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed(AppRoutes.myOrders),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0FFF4),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2DB84B).withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Color(0xFF2DB84B),
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Pedido Confirmado',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    names,
+                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              order.formattedTotal,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: _green,
+              ),
+            ),
           ],
         ),
       ),
@@ -64,7 +156,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           const Expanded(
             child: Center(
               child: Text(
-                'Configurar Notificações',
+                'Notificações',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -81,10 +173,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style:
+                const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
           Switch(
             value: value,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: _green,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: _yellow,
@@ -96,8 +192,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _bottomNav() {
-    return const CultureBottomNav(
-      currentItem: CultureBottomNavItem.home,
-    );
+    return const CultureBottomNav(currentItem: CultureBottomNavItem.home);
   }
 }

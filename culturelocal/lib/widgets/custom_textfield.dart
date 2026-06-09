@@ -83,10 +83,7 @@ class _CultureTextFieldState extends State<CultureTextField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: AppColors.green,
-                width: 1.2,
-              ),
+              borderSide: const BorderSide(color: AppColors.green, width: 1.2),
             ),
             suffixIcon: widget.obscureText
                 ? IconButton(

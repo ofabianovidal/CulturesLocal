@@ -70,14 +70,9 @@ class CultureAuthScaffold extends StatelessWidget {
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: AppColors.softPanel,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(34),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
                 ),
-                child: SafeArea(
-                  top: false,
-                  child: child,
-                ),
+                child: SafeArea(top: false, child: child),
               ),
             ),
           ],

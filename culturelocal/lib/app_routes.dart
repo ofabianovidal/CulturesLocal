@@ -15,6 +15,7 @@ class AppRoutes {
   static const filters = '/filters';
   static const createEvent = '/create-event';
   static const support = '/support';
+  static const myOrders = '/my-orders';
   static const prototypeMenu = '/prototype-menu';
 
   const AppRoutes._();
