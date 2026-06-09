@@ -17,12 +17,60 @@ class _SupportScreenState extends State<SupportScreen> {
   bool _showFaq = true;
   int? _expanded;
 
-  static const _items = [
-    (Icons.headset_mic_outlined, 'Chat'),
-    (Icons.language_outlined, 'Site'),
-    (Icons.chat_outlined, 'Whatsapp'),
-    (Icons.facebook_outlined, 'Facebook'),
-    (Icons.camera_alt_outlined, 'Instagram'),
+  static const _faq = [
+    (
+      'Como faço para comprar ingressos?',
+      'Encontre o evento desejado na tela inicial, toque nele, escolha a quantidade e adicione ao carrinho. Depois acesse o carrinho e finalize o pagamento.',
+    ),
+    (
+      'Posso cancelar meu pedido?',
+      'Cancelamentos podem ser solicitados em até 48 horas antes do evento pelo chat ou WhatsApp. Reembolsos são processados em até 5 dias úteis.',
+    ),
+    (
+      'Como crio um evento?',
+      'Acesse "Meu Perfil" e toque em "Criar Evento". Preencha os dados e publique. O evento aparecerá no início imediatamente.',
+    ),
+    (
+      'Meu pagamento foi recusado. O que fazer?',
+      'Verifique os dados do cartão e tente novamente. Caso persista, entre em contato pelo SAC (0800 079 0042) ou pelo WhatsApp (79) 99812-3456.',
+    ),
+    (
+      'Como favorito um evento?',
+      'Toque no ícone de coração no card do evento na tela inicial ou dentro da tela do evento.',
+    ),
+  ];
+
+  static const _contacts = [
+    (
+      Icons.headset_mic_outlined,
+      'Chat ao Vivo',
+      'Seg – Sex, 8h às 20h\nSáb, 9h às 15h',
+      'Atendimento em até 5 minutos',
+    ),
+    (
+      Icons.language_outlined,
+      'Site Oficial',
+      'www.culturelocal.com.br',
+      'Disponível 24h por dia',
+    ),
+    (
+      Icons.chat_outlined,
+      'WhatsApp',
+      '(79) 99812-3456',
+      'Seg – Sex, 8h às 22h',
+    ),
+    (
+      Icons.facebook_outlined,
+      'Facebook',
+      '/CultureLocalOficial',
+      'Resposta em até 1 dia útil',
+    ),
+    (
+      Icons.camera_alt_outlined,
+      'Instagram',
+      '@culturelocal',
+      'Resposta em até 1 dia útil',
+    ),
   ];
 
   @override
@@ -34,18 +82,156 @@ class _SupportScreenState extends State<SupportScreen> {
           children: [
             _topBanner(context),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
-                children: List.generate(
-                  _items.length,
-                  (i) => _expandableItem(i),
-                ),
-              ),
+              child: _showFaq ? _faqList() : _contactList(),
             ),
             _bottomNav(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _faqList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      itemCount: _faq.length,
+      itemBuilder: (_, i) => _faqItem(i),
+    );
+  }
+
+  Widget _faqItem(int index) {
+    final item = _faq[index];
+    final isOpen = _expanded == index;
+
+    return GestureDetector(
+      onTap: () => setState(() => _expanded = isOpen ? null : index),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 2),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.$1,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    isOpen
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: _green,
+                  ),
+                ],
+              ),
+              if (isOpen) ...[
+                const SizedBox(height: 8),
+                Text(
+                  item.$2,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _contactList() {
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      children: [
+        const Text(
+          'SAC Gratuito',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.black45,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          '0800 079 0042',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: _green,
+          ),
+        ),
+        const Text(
+          'Seg – Sex, 8h às 20h  •  Ligação gratuita',
+          style: TextStyle(fontSize: 12, color: Colors.black45),
+        ),
+        const SizedBox(height: 20),
+        const Divider(),
+        const SizedBox(height: 8),
+        ...List.generate(_contacts.length, (i) => _contactItem(i)),
+      ],
+    );
+  }
+
+  Widget _contactItem(int index) {
+    final item = _contacts[index];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 2),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F0F0),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(item.$1, size: 22, color: _green),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.$2,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    item.$3,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: _green,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    item.$4,
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -95,12 +281,18 @@ class _SupportScreenState extends State<SupportScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _tabBtn('FAQ', _showFaq, () => setState(() => _showFaq = true)),
-                _tabBtn(
-                  'Nos Ligue',
-                  !_showFaq,
-                  () => setState(() => _showFaq = false),
-                ),
+                _tabBtn('FAQ', _showFaq, () {
+                  setState(() {
+                    _showFaq = true;
+                    _expanded = null;
+                  });
+                }),
+                _tabBtn('Nos Ligue', !_showFaq, () {
+                  setState(() {
+                    _showFaq = false;
+                    _expanded = null;
+                  });
+                }),
               ],
             ),
           ),
@@ -115,9 +307,7 @@ class _SupportScreenState extends State<SupportScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
-          color: active
-              ? (_showFaq && label == 'FAQ' ? _yellow : _green)
-              : Colors.transparent,
+          color: active ? (label == 'FAQ' ? _yellow : _green) : Colors.transparent,
           borderRadius: BorderRadius.circular(26),
         ),
         child: Text(
@@ -126,53 +316,8 @@ class _SupportScreenState extends State<SupportScreen> {
             fontWeight: FontWeight.w700,
             fontSize: 14,
             color: active
-                ? (_showFaq && label == 'FAQ' ? Colors.black87 : Colors.white)
+                ? (label == 'FAQ' ? Colors.black87 : Colors.white)
                 : Colors.black54,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _expandableItem(int index) {
-    final item = _items[index];
-    final isOpen = _expanded == index;
-
-    return GestureDetector(
-      onTap: () => setState(() => _expanded = isOpen ? null : index),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 2),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F0F0),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(item.$1, size: 22, color: _green),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  item.$2,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Icon(
-                isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: _green,
-              ),
-            ],
           ),
         ),
       ),

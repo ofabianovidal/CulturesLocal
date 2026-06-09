@@ -12,6 +12,7 @@ class AppEvent {
     required this.uidCriador,
     required this.data,
     required this.preco,
+    required this.categoria,
     this.criadoEm,
   });
 
@@ -24,41 +25,47 @@ class AppEvent {
   final String uidCriador;
   final DateTime data;
   final double preco;
+  final String categoria;
   final DateTime? criadoEm;
 
+  String get periodo =>
+      (data.hour >= 6 && data.hour < 18) ? 'diurno' : 'noturno';
+
   factory AppEvent.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data() ?? <String, dynamic>{};
+    final d = doc.data() ?? <String, dynamic>{};
 
     return AppEvent(
       id: doc.id,
-      nome: data['nome'] as String? ?? 'Evento sem nome',
-      descricao: data['descricao'] as String? ?? '',
-      telefone: data['telefone'] as String? ?? '',
-      status: data['status'] as String? ?? 'ativo',
-      criadoPor: data['criado_por'] as String? ?? '',
-      uidCriador: data['uid_criador'] as String? ?? '',
-      data: _readDate(data['data']),
-      preco: _readDouble(data['preco']),
-      criadoEm: _readDateNullable(data['criado_em']),
+      nome: d['nome'] as String? ?? 'Evento sem nome',
+      descricao: d['descricao'] as String? ?? '',
+      telefone: d['telefone'] as String? ?? '',
+      status: d['status'] as String? ?? 'ativo',
+      criadoPor: d['criado_por'] as String? ?? '',
+      uidCriador: d['uid_criador'] as String? ?? '',
+      data: _readDate(d['data']),
+      preco: _readDouble(d['preco']),
+      categoria: d['categoria'] as String? ?? 'outras',
+      criadoEm: _readDateNullable(d['criado_em']),
     );
   }
 
   factory AppEvent.fromFavoriteDocument(
     DocumentSnapshot<Map<String, dynamic>> doc,
   ) {
-    final data = doc.data() ?? <String, dynamic>{};
+    final d = doc.data() ?? <String, dynamic>{};
 
     return AppEvent(
-      id: data['event_id'] as String? ?? doc.id,
-      nome: data['nome'] as String? ?? 'Evento favoritado',
-      descricao: data['descricao'] as String? ?? '',
-      telefone: data['telefone'] as String? ?? '',
-      status: data['status'] as String? ?? 'ativo',
-      criadoPor: data['criado_por_evento'] as String? ?? '',
-      uidCriador: data['uid_criador'] as String? ?? '',
-      data: _readDate(data['data']),
-      preco: _readDouble(data['preco']),
-      criadoEm: _readDateNullable(data['criado_em_evento']),
+      id: d['event_id'] as String? ?? doc.id,
+      nome: d['nome'] as String? ?? 'Evento favoritado',
+      descricao: d['descricao'] as String? ?? '',
+      telefone: d['telefone'] as String? ?? '',
+      status: d['status'] as String? ?? 'ativo',
+      criadoPor: d['criado_por_evento'] as String? ?? '',
+      uidCriador: d['uid_criador'] as String? ?? '',
+      data: _readDate(d['data']),
+      preco: _readDouble(d['preco']),
+      categoria: d['categoria'] as String? ?? 'outras',
+      criadoEm: _readDateNullable(d['criado_em_evento']),
     );
   }
 
@@ -72,6 +79,7 @@ class AppEvent {
       'uid_criador': uidCriador,
       'data': Timestamp.fromDate(data),
       'preco': preco,
+      'categoria': categoria,
       if (criadoEm != null) 'criado_em': Timestamp.fromDate(criadoEm!),
     };
   }
@@ -88,6 +96,7 @@ class AppEvent {
       'status': status,
       'data': Timestamp.fromDate(data),
       'preco': preco,
+      'categoria': categoria,
       'uid_criador': uidCriador,
       'criado_por_evento': criadoPor,
       'criado_em_evento': criadoEm == null

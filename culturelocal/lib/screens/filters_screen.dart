@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
+import '../models/event_filters.dart';
 import '../widgets/bottom_nav.dart';
 
 class FiltersScreen extends StatefulWidget {
@@ -14,20 +15,53 @@ class _FiltersScreenState extends State<FiltersScreen> {
   static const _yellow = Color(0xFFE4C65A);
   static const _green = Color(0xFF1A7A3C);
 
-  int _selectedCategory = 0;
-  int _stars = 4;
-  final Set<String> _selectedTags = {'Noturno'};
-  double _maxPrice = 55;
+  EventFilters _initial = EventFilters.empty;
+  bool _loaded = false;
 
-  final _categories = const [
-    (Icons.music_note_outlined, 'Sertanejo'),
-    (Icons.queue_music_outlined, 'Forró'),
-    (Icons.audiotrack_outlined, 'Música'),
-    (Icons.theater_comedy_outlined, 'Teatro'),
-    (Icons.more_horiz, 'Outras'),
+  late int _selectedCategory;
+  late String? _selectedPeriodo;
+  late double _maxPrice;
+
+  static const _categoryIcons = [
+    Icons.music_note_outlined,
+    Icons.queue_music_outlined,
+    Icons.audiotrack_outlined,
+    Icons.theater_comedy_outlined,
+    Icons.more_horiz,
   ];
 
-  final _tags = ['Raiz', 'Atual', 'Diurno', 'Adultos', 'Noturno', 'Jovens'];
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_loaded) return;
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is EventFilters) {
+      _initial = args;
+    }
+
+    _selectedCategory = _initial.categoria == null
+        ? -1
+        : kCategoryKeys.indexOf(_initial.categoria!);
+    _selectedPeriodo = _initial.periodo;
+    _maxPrice = _initial.maxPreco;
+    _loaded = true;
+  }
+
+  void _apply() {
+    final categoria =
+        _selectedCategory >= 0 ? kCategoryKeys[_selectedCategory] : null;
+    final filters = EventFilters(
+      categoria: categoria,
+      periodo: _selectedPeriodo,
+      maxPreco: _maxPrice,
+    );
+    Navigator.of(context).pop(filters);
+  }
+
+  void _clear() {
+    Navigator.of(context).pop(EventFilters.empty);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,23 +84,21 @@ class _FiltersScreenState extends State<FiltersScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      _sectionLabel('Categories'),
+                      _sectionLabel('Categoria'),
                       const SizedBox(height: 14),
                       _categoriesRow(),
                       const SizedBox(height: 24),
-                      _sectionLabel('Ordenar por'),
+                      _sectionLabel('Período'),
                       const SizedBox(height: 12),
-                      _starsRow(),
-                      const SizedBox(height: 8),
-                      _sectionLabel('Categorias'),
-                      const SizedBox(height: 12),
-                      _tagsWrap(),
+                      _periodoRow(),
                       const SizedBox(height: 24),
-                      _sectionLabel('Preço', color: _green),
+                      _sectionLabel('Preço máximo', color: _green),
                       const SizedBox(height: 12),
                       _priceSlider(),
                       const SizedBox(height: 32),
                       _applyButton(context),
+                      const SizedBox(height: 12),
+                      _clearButton(context),
                     ],
                   ),
                 ),
@@ -121,17 +153,23 @@ class _FiltersScreenState extends State<FiltersScreen> {
   Widget _sectionLabel(String text, {Color color = Colors.black87}) {
     return Text(
       text,
-      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: color),
+      style: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ),
     );
   }
 
   Widget _categoriesRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(_categories.length, (i) {
+      children: List.generate(kCategoryKeys.length, (i) {
         final selected = _selectedCategory == i;
         return GestureDetector(
-          onTap: () => setState(() => _selectedCategory = i),
+          onTap: () => setState(
+            () => _selectedCategory = selected ? -1 : i,
+          ),
           child: Column(
             children: [
               Container(
@@ -142,11 +180,11 @@ class _FiltersScreenState extends State<FiltersScreen> {
                   borderRadius: BorderRadius.circular(14),
                   border: selected ? Border.all(color: _green, width: 2) : null,
                 ),
-                child: Icon(_categories[i].$1, size: 26, color: _green),
+                child: Icon(_categoryIcons[i], size: 26, color: _green),
               ),
               const SizedBox(height: 6),
               Text(
-                _categories[i].$2,
+                kCategoryLabels[i],
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -159,48 +197,42 @@ class _FiltersScreenState extends State<FiltersScreen> {
     );
   }
 
-  Widget _starsRow() {
+  Widget _periodoRow() {
     return Row(
-      children: List.generate(5, (i) {
-        return GestureDetector(
-          onTap: () => setState(() => _stars = i + 1),
-          child: Icon(
-            i < _stars ? Icons.star : Icons.star_border,
-            color: i < _stars ? _green : Colors.grey.shade300,
-            size: 28,
-          ),
-        );
-      }),
+      children: [
+        _periodoChip('diurno', Icons.wb_sunny_outlined, 'Diurno'),
+        const SizedBox(width: 12),
+        _periodoChip('noturno', Icons.nights_stay_outlined, 'Noturno'),
+      ],
     );
   }
 
-  Widget _tagsWrap() {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: _tags.map((tag) {
-        final sel = _selectedTags.contains(tag);
-        return GestureDetector(
-          onTap: () => setState(() {
-            sel ? _selectedTags.remove(tag) : _selectedTags.add(tag);
-          }),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: sel ? _green : _yellow,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              tag,
+  Widget _periodoChip(String value, IconData icon, String label) {
+    final selected = _selectedPeriodo == value;
+    return GestureDetector(
+      onTap: () =>
+          setState(() => _selectedPeriodo = selected ? null : value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? _green : _yellow,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: selected ? Colors.white : Colors.black87),
+            const SizedBox(width: 6),
+            Text(
+              label,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: sel ? Colors.white : Colors.black87,
+                color: selected ? Colors.white : Colors.black87,
               ),
             ),
-          ),
-        );
-      }).toList(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -226,21 +258,21 @@ class _FiltersScreenState extends State<FiltersScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 'R\$10',
                 style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
               Text(
-                'R\$50',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
+                'Até R\$ ${_maxPrice.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
-              Text(
-                'R\$100',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-              Text(
-                'R\$200 >',
+              const Text(
+                'R\$200',
                 style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
             ],
@@ -261,14 +293,35 @@ class _FiltersScreenState extends State<FiltersScreen> {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        onPressed: () => Navigator.maybePop(context),
+        onPressed: _apply,
         child: const Text(
-          'Aplicar',
+          'Aplicar Filtros',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _clearButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _green,
+          side: const BorderSide(color: Color(0xFF1A7A3C)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        onPressed: _clear,
+        child: const Text(
+          'Limpar Filtros',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
     );

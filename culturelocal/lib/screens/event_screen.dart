@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_routes.dart';
 import '../models/app_event.dart';
 import '../services/auth_service.dart';
+import '../services/cart_service.dart';
 import '../services/firestore_service.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/event_card.dart';
@@ -24,13 +25,24 @@ class _EventScreenState extends State<EventScreen> {
     try {
       await FirestoreService.instance.toggleFavorite(event);
     } catch (_) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nao foi possivel atualizar o favorito.')),
       );
     }
+  }
+
+  void _addToCart(AppEvent event) {
+    CartService.instance.add(event, qty: _qty);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$_qty ingresso(s) de "${event.nome}" adicionado(s) ao carrinho.'),
+        action: SnackBarAction(
+          label: 'Ver carrinho',
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cart),
+        ),
+      ),
+    );
   }
 
   Future<void> _deleteEvent(AppEvent event) async {
@@ -54,19 +66,12 @@ class _EventScreenState extends State<EventScreen> {
       },
     );
 
-    if (shouldDelete != true) {
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
+    if (shouldDelete != true) return;
+    if (!mounted) return;
 
     try {
       await FirestoreService.instance.deleteEvent(event.id);
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       navigateToRootRoute(context, AppRoutes.myEvents);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Evento "${event.nome}" excluido.')),
@@ -98,7 +103,8 @@ class _EventScreenState extends State<EventScreen> {
       stream: FirestoreService.instance.watchEvent(initialEvent.id),
       builder: (context, snapshot) {
         final event = snapshot.data ?? initialEvent;
-        final isOwner = event.belongsTo(AuthService.instance.currentUser?.uid);
+        final isOwner =
+            event.belongsTo(AuthService.instance.currentUser?.uid);
 
         return Scaffold(
           backgroundColor: _yellow,
@@ -179,7 +185,7 @@ class _EventScreenState extends State<EventScreen> {
                     ),
                   ),
                 ),
-                _buyButton(context),
+                _buyButton(event),
                 _bottomNav(),
               ],
             ),
@@ -268,9 +274,7 @@ class _EventScreenState extends State<EventScreen> {
           child: Row(
             children: [
               _qtyBtn(Icons.remove, () {
-                if (_qty > 1) {
-                  setState(() => _qty--);
-                }
+                if (_qty > 1) setState(() => _qty--);
               }),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -315,7 +319,7 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
-  Widget _buyButton(BuildContext context) {
+  Widget _buyButton(AppEvent event) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: SizedBox(
@@ -334,14 +338,14 @@ class _EventScreenState extends State<EventScreen> {
             size: 20,
           ),
           label: const Text(
-            'Comprar',
+            'Adicionar ao carrinho',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
           ),
-          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cart),
+          onPressed: () => _addToCart(event),
         ),
       ),
     );

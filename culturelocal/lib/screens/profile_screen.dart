@@ -227,6 +227,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 14),
                       Center(
                         child: CulturePillButton(
+                          label: 'Meus Pedidos',
+                          width: 168,
+                          height: 38,
+                          fontSize: 13,
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(AppRoutes.myOrders);
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Center(
+                        child: CulturePillButton(
                           label: 'Sair da Conta',
                           width: 168,
                           height: 38,

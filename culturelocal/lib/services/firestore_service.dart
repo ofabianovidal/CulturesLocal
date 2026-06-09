@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/app_event.dart';
+import '../models/app_order.dart';
 import '../models/app_user_profile.dart';
 
 class FirestoreService {
@@ -18,6 +19,9 @@ class FirestoreService {
   CollectionReference<Map<String, dynamic>> get _events =>
       _db.collection('events');
 
+  CollectionReference<Map<String, dynamic>> get _orders =>
+      _db.collection('orders');
+
   User get _requiredUser {
     final user = _auth.currentUser;
     if (user == null) {
@@ -29,6 +33,8 @@ class FirestoreService {
   CollectionReference<Map<String, dynamic>> _favoritesCollection(String uid) {
     return _users.doc(uid).collection('favorites');
   }
+
+  // ── User profile ──────────────────────────────────────────────────────────
 
   Future<void> ensureCurrentUserProfile({
     String? name,
@@ -104,6 +110,8 @@ class FirestoreService {
     }
   }
 
+  // ── Events ────────────────────────────────────────────────────────────────
+
   Stream<List<AppEvent>> watchPublicEvents() {
     return _events
         .orderBy('data')
@@ -119,9 +127,12 @@ class FirestoreService {
 
     return _events
         .where('uid_criador', isEqualTo: user.uid)
-        .orderBy('data')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map(AppEvent.fromDocument).toList());
+        .map((snapshot) {
+          final events = snapshot.docs.map(AppEvent.fromDocument).toList();
+          events.sort((a, b) => a.data.compareTo(b.data));
+          return events;
+        });
   }
 
   Stream<AppEvent?> watchEvent(String eventId) {
@@ -141,6 +152,7 @@ class FirestoreService {
     required String status,
     required DateTime data,
     required double preco,
+    required String categoria,
   }) async {
     final user = _requiredUser;
     final docRef = eventId == null ? _events.doc() : _events.doc(eventId);
@@ -153,6 +165,7 @@ class FirestoreService {
       'status': status,
       'data': Timestamp.fromDate(data),
       'preco': preco,
+      'categoria': categoria,
       'uid_criador': user.uid,
       'criado_por': user.email ?? '',
       'atualizado_em': FieldValue.serverTimestamp(),
@@ -169,6 +182,8 @@ class FirestoreService {
   Future<void> deleteEvent(String eventId) async {
     await _events.doc(eventId).delete();
   }
+
+  // ── Favorites ─────────────────────────────────────────────────────────────
 
   Stream<List<AppEvent>> watchFavoriteEvents() {
     final user = _auth.currentUser;
@@ -213,6 +228,47 @@ class FirestoreService {
       ),
     );
   }
+
+  // ── Orders ────────────────────────────────────────────────────────────────
+
+  Future<String> saveOrder({
+    required List<AppOrderItem> items,
+    required double subtotal,
+    required double taxa,
+    required double total,
+  }) async {
+    final user = _requiredUser;
+    final docRef = _orders.doc();
+
+    await docRef.set({
+      'uid': user.uid,
+      'items': items.map((i) => i.toMap()).toList(),
+      'subtotal': subtotal,
+      'taxa': taxa,
+      'total': total,
+      'criado_em': FieldValue.serverTimestamp(),
+    });
+
+    return docRef.id;
+  }
+
+  Stream<List<AppOrder>> watchMyOrders() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream<List<AppOrder>>.value(const <AppOrder>[]);
+    }
+
+    return _orders
+        .where('uid', isEqualTo: user.uid)
+        .snapshots()
+        .map((snapshot) {
+          final orders = snapshot.docs.map(AppOrder.fromDocument).toList();
+          orders.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+          return orders;
+        });
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   String _pickValue({String? primary, String? secondary, String? fallback}) {
     final trimmedPrimary = primary?.trim();

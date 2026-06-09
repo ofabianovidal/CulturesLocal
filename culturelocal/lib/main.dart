@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'app_routes.dart';
 import 'firebase_options.dart';
@@ -15,6 +16,7 @@ import 'screens/index_screen.dart';
 import 'screens/support_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/my_events_screen.dart';
+import 'screens/my_orders_screen.dart';
 import 'screens/new_password_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/profile_screen.dart';
@@ -24,8 +26,9 @@ import 'screens/success_screen.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('pt_BR', null);
   runApp(const CultureLocalApp());
 }
 
@@ -55,6 +58,7 @@ class CultureLocalApp extends StatelessWidget {
         AppRoutes.filters: (_) => const FiltersScreen(),
         AppRoutes.createEvent: (_) => const CreateEventScreen(),
         AppRoutes.support: (_) => const SupportScreen(),
+        AppRoutes.myOrders: (_) => const MyOrdersScreen(),
         AppRoutes.prototypeMenu: (_) => const MenuScreen(),
       },
     );

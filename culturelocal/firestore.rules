@@ -56,5 +56,13 @@ service cloud.firestore {
 
       allow delete: if ownsEvent();
     }
+
+    match /orders/{orderId} {
+      allow read: if institutionalEmail()
+        && resource.data.uid == request.auth.uid;
+
+      allow create: if institutionalEmail()
+        && request.resource.data.uid == request.auth.uid;
+    }
   }
 }

@@ -97,6 +97,8 @@ class CultureEventCard extends StatelessWidget {
     required this.dateLabel,
     this.showPrice = true,
     this.showFavoriteBadge = true,
+    this.isFavorite = false,
+    this.onFavoriteTap,
     this.posterWidth = 154,
     this.posterHeight = 118,
     this.priceLabel = '',
@@ -109,6 +111,8 @@ class CultureEventCard extends StatelessWidget {
   final String dateLabel;
   final bool showPrice;
   final bool showFavoriteBadge;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
   final double posterWidth;
   final double posterHeight;
   final String priceLabel;
@@ -150,12 +154,20 @@ class CultureEventCard extends StatelessWidget {
                           if (topRight != null)
                             topRight!
                           else if (showFavoriteBadge)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 2),
-                              child: Icon(
-                                Icons.favorite,
-                                color: AppColors.green,
-                                size: 16,
+                            GestureDetector(
+                              onTap: onFavoriteTap,
+                              behavior: HitTestBehavior.opaque,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2, left: 8),
+                                child: Icon(
+                                  isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: isFavorite
+                                      ? Colors.red
+                                      : AppColors.green,
+                                  size: 20,
+                                ),
                               ),
                             ),
                         ],

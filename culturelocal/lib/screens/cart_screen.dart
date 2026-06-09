@@ -1,50 +1,51 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
+import '../services/cart_service.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/event_card.dart';
 
-class CartScreen extends StatefulWidget {
+class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
-  @override
-  State<CartScreen> createState() => _CartScreenState();
-}
-
-class _CartScreenState extends State<CartScreen> {
-  final int _qty = 2;
   static const _green = Color(0xFF1A7A3C);
   static const _yellow = Color(0xFFE4C65A);
-
-  double get _subtotal => _qty * 10.0;
-  double get _taxa => 1.0;
-  double get _total => _subtotal + _taxa;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _green,
       body: SafeArea(
-        child: Column(
-          children: [
-            _header(context),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    _cartItem(),
-                    const SizedBox(height: 40),
-                    _summary(),
-                    const SizedBox(height: 24),
-                  ],
+        child: ListenableBuilder(
+          listenable: CartService.instance,
+          builder: (context, _) {
+            final cart = CartService.instance;
+            return Column(
+              children: [
+                _header(context),
+                Expanded(
+                  child: cart.isEmpty
+                      ? _emptyState()
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 8),
+                              ...cart.items.map(
+                                (item) => _cartItem(context, item),
+                              ),
+                              const SizedBox(height: 40),
+                              _summary(cart),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
                 ),
-              ),
-            ),
-            _checkoutButton(context),
-            _bottomNav(),
-          ],
+                if (!cart.isEmpty) _checkoutButton(context),
+                _bottomNav(),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -92,8 +93,34 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _cartItem() {
+  Widget _emptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.white38),
+          SizedBox(height: 16),
+          Text(
+            'Seu carrinho está vazio.',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Adicione ingressos na tela de um evento.',
+            style: TextStyle(color: Colors.white38, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _cartItem(BuildContext context, CartItem item) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
@@ -110,22 +137,22 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Festa Sertaneja',
-                  style: TextStyle(
+                  item.event.nome,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     fontSize: 15,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  '01/11/01',
-                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                  item.event.formattedDate,
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
                 ),
               ],
             ),
@@ -135,40 +162,59 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: _yellow,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$_qty',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => CartService.instance.setQty(
+                      item.event.id,
+                      item.qty - 1,
+                    ),
+                    child: const Icon(
+                      Icons.remove_circle_outline,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      '${item.qty}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => CartService.instance.setQty(
+                      item.event.id,
+                      item.qty + 1,
+                    ),
+                    child: const Icon(
+                      Icons.add_circle_outline,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () =>
+                        CartService.instance.remove(item.event.id),
                     child: const Icon(
                       Icons.cancel,
-                      color: Colors.white54,
-                      size: 18,
+                      color: Colors.white38,
+                      size: 20,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
-                'R\$ ${(_qty * 10).toStringAsFixed(0)}',
+                item.event.formattedPrice.replaceFirst('R\$', 'R\$ ') +
+                    (item.qty > 1 ? ' × ${item.qty}' : ''),
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: _yellow,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
               ),
             ],
@@ -178,12 +224,18 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _summary() {
+  Widget _summary(CartService cart) {
     return Column(
       children: [
-        _summaryRow('Subtotal', 'R\$ ${_subtotal.toStringAsFixed(0)}'),
+        _summaryRow(
+          'Subtotal',
+          'R\$ ${cart.subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+        ),
         const SizedBox(height: 10),
-        _summaryRow('Taxa', 'R\$ ${_taxa.toStringAsFixed(0)}'),
+        _summaryRow(
+          'Taxa',
+          'R\$ ${cart.taxa.toStringAsFixed(2).replaceAll('.', ',')}',
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
@@ -204,7 +256,7 @@ class _CartScreenState extends State<CartScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              'R\$ ${_total.toStringAsFixed(0)}',
+              'R\$ ${cart.total.toStringAsFixed(2).replaceAll('.', ',')}',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -221,10 +273,7 @@ class _CartScreenState extends State<CartScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 15),
-        ),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 15)),
         Text(
           value,
           style: const TextStyle(

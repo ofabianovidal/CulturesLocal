@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
 import '../models/app_event.dart';
+import '../models/event_filters.dart';
 import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
@@ -15,15 +16,50 @@ class IndexScreen extends StatefulWidget {
 }
 
 class _IndexScreenState extends State<IndexScreen> {
-  int _selectedCategory = 0;
+  EventFilters _filters = EventFilters.empty;
 
-  static const _categories = [
-    ('Sertaneja', Icons.music_note_outlined),
-    ('Forró', Icons.queue_music_outlined),
-    ('Música', Icons.library_music_outlined),
-    ('Teatro', Icons.theater_comedy_outlined),
-    ('Outras', Icons.more_horiz_rounded),
+  static const _categoryIcons = [
+    Icons.music_note_outlined,
+    Icons.queue_music_outlined,
+    Icons.library_music_outlined,
+    Icons.theater_comedy_outlined,
+    Icons.more_horiz_rounded,
   ];
+
+  int get _selectedCategory {
+    if (_filters.categoria == null) return -1;
+    return kCategoryKeys.indexOf(_filters.categoria!);
+  }
+
+  Future<void> _openFilters() async {
+    final result = await Navigator.of(context).pushNamed(
+      AppRoutes.filters,
+      arguments: _filters,
+    );
+    if (result is EventFilters) {
+      setState(() => _filters = result);
+    }
+  }
+
+  void _selectCategory(int index) {
+    final key = kCategoryKeys[index];
+    setState(() {
+      _filters = _filters.copyWith(
+        categoria: _filters.categoria == key ? null : key,
+      );
+    });
+  }
+
+  Future<void> _toggleFavorite(AppEvent event) async {
+    try {
+      await FirestoreService.instance.toggleFavorite(event);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nao foi possivel atualizar o favorito.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +93,21 @@ class _IndexScreenState extends State<IndexScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    final events = snapshot.data ?? const <AppEvent>[];
+                    final all = snapshot.data ?? const <AppEvent>[];
+                    final events = _filters.isActive
+                        ? all.where(_filters.matches).toList()
+                        : all;
+
                     if (events.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Padding(
-                          padding: EdgeInsets.all(28),
+                          padding: const EdgeInsets.all(28),
                           child: Text(
-                            'Nenhum evento cadastrado ainda.\nCrie o primeiro em "Meus eventos".',
+                            all.isEmpty
+                                ? 'Nenhum evento cadastrado ainda.\nCrie o primeiro em "Meus eventos".'
+                                : 'Nenhum evento encontrado com os filtros aplicados.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.green,
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -82,17 +124,25 @@ class _IndexScreenState extends State<IndexScreen> {
                           Container(height: 1, color: const Color(0xFFE9D5C4)),
                       itemBuilder: (context, index) {
                         final event = events[index];
-                        return CultureEventCard(
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRoutes.event, arguments: event);
+                        return StreamBuilder<bool>(
+                          stream: FirestoreService.instance.watchIsFavorite(
+                            event.id,
+                          ),
+                          builder: (context, favSnap) {
+                            return CultureEventCard(
+                              onTap: () => Navigator.of(context).pushNamed(
+                                AppRoutes.event,
+                                arguments: event,
+                              ),
+                              title: event.nome,
+                              description: event.descricao,
+                              dateLabel: event.formattedDate,
+                              priceLabel: event.formattedPrice,
+                              showFavoriteBadge: true,
+                              isFavorite: favSnap.data ?? false,
+                              onFavoriteTap: () => _toggleFavorite(event),
+                            );
                           },
-                          title: event.nome,
-                          description: event.descricao,
-                          dateLabel: event.formattedDate,
-                          priceLabel: event.formattedPrice,
-                          showFavoriteBadge: false,
                         );
                       },
                     );
@@ -111,44 +161,58 @@ class _IndexScreenState extends State<IndexScreen> {
     return Row(
       children: [
         Expanded(
-          child: Container(
-            height: 28,
-            padding: const EdgeInsets.only(left: 12, right: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Eventos em tempo real no Firebase',
-                    style: TextStyle(
-                      color: Color(0xFF9F9F9F),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+          child: GestureDetector(
+            onTap: _openFilters,
+            child: Container(
+              height: 28,
+              padding: const EdgeInsets.only(left: 12, right: 4),
+              decoration: BoxDecoration(
+                color: _filters.isActive
+                    ? AppColors.green.withValues(alpha: 0.12)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: _filters.isActive
+                    ? Border.all(color: AppColors.green, width: 1)
+                    : null,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _filters.isActive
+                          ? 'Filtros ativos — toque para editar'
+                          : 'Buscar eventos...',
+                      style: TextStyle(
+                        color: _filters.isActive
+                            ? AppColors.green
+                            : const Color(0xFF9F9F9F),
+                        fontSize: 12,
+                        fontWeight: _filters.isActive
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
                     ),
                   ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pushNamed(AppRoutes.filters);
-                  },
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(
-                      color: AppColors.green,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.tune_rounded,
-                      size: 16,
-                      color: Colors.white,
+                  GestureDetector(
+                    onTap: _openFilters,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: _filters.isActive
+                            ? AppColors.green
+                            : AppColors.green,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.tune_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -186,16 +250,11 @@ class _IndexScreenState extends State<IndexScreen> {
       height: 102,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(_categories.length, (index) {
-          final item = _categories[index];
+        children: List.generate(kCategoryKeys.length, (index) {
           final isSelected = index == _selectedCategory;
 
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedCategory = index;
-              });
-            },
+            onTap: () => _selectCategory(index),
             child: isSelected
                 ? Container(
                     width: 74,
@@ -206,10 +265,10 @@ class _IndexScreenState extends State<IndexScreen> {
                     ),
                     child: Column(
                       children: [
-                        _categoryIcon(item.$2),
+                        _categoryIcon(_categoryIcons[index]),
                         const SizedBox(height: 6),
                         Text(
-                          item.$1,
+                          kCategoryLabels[index],
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 13,
@@ -223,10 +282,10 @@ class _IndexScreenState extends State<IndexScreen> {
                 : Column(
                     children: [
                       const SizedBox(height: 10),
-                      _categoryIcon(item.$2),
+                      _categoryIcon(_categoryIcons[index]),
                       const SizedBox(height: 6),
                       Text(
-                        item.$1,
+                        kCategoryLabels[index],
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.text,

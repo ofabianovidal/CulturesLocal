@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../app_routes.dart';
 import '../models/app_event.dart';
+import '../models/event_filters.dart';
 import '../services/firestore_service.dart';
 import '../widgets/bottom_nav.dart';
 
@@ -29,14 +30,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   bool _hasLoadedEvent = false;
   bool _isSaving = false;
   String _selectedStatus = 'ativo';
+  String _selectedCategoria = 'outras';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (_hasLoadedEvent) {
-      return;
-    }
+    if (_hasLoadedEvent) return;
 
     final event = ModalRoute.of(context)?.settings.arguments as AppEvent?;
     if (event != null) {
@@ -47,6 +47,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       _priceCtrl.text = event.preco.toStringAsFixed(2).replaceAll('.', ',');
       _phoneCtrl.text = event.telefone;
       _selectedStatus = event.status;
+      _selectedCategoria = event.categoria;
     } else {
       _dateCtrl.text = _dateFormatter.format(
         DateTime.now().add(const Duration(days: 1)),
@@ -77,18 +78,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       initialDate: initialDate,
     );
 
-    if (pickedDate == null || !mounted) {
-      return;
-    }
+    if (pickedDate == null || !mounted) return;
 
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initialDate),
     );
 
-    if (pickedTime == null) {
-      return;
-    }
+    if (pickedTime == null) return;
 
     final composed = DateTime(
       pickedDate.year,
@@ -131,11 +128,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         status: _selectedStatus,
         data: data,
         preco: preco,
+        categoria: _selectedCategoria,
       );
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       Navigator.of(
         context,
@@ -152,9 +148,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     } catch (_) {
       _showMessage('Nao foi possivel salvar o evento.');
     } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -172,7 +166,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         .replaceAll(' ', '')
         .replaceAll('.', '')
         .replaceAll(',', '.');
-
     return double.tryParse(normalized);
   }
 
@@ -211,6 +204,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       hint: 'Explique rapidamente a proposta do evento.',
                     ),
                     const SizedBox(height: 16),
+                    _label('Categoria'),
+                    const SizedBox(height: 8),
+                    _categoriaSelector(),
+                    const SizedBox(height: 16),
                     _label('Data e hora'),
                     const SizedBox(height: 8),
                     _field(
@@ -219,6 +216,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       readOnly: true,
                       onTap: _pickDateTime,
                     ),
+                    const SizedBox(height: 8),
+                    _periodoInfo(),
                     const SizedBox(height: 16),
                     _label('Preco'),
                     const SizedBox(height: 8),
@@ -317,6 +316,77 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     );
   }
 
+  Widget _categoriaSelector() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: _fieldBg,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedCategoria,
+          items: List.generate(kCategoryKeys.length, (i) {
+            return DropdownMenuItem(
+              value: kCategoryKeys[i],
+              child: Text(kCategoryLabels[i]),
+            );
+          }),
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _selectedCategoria = value);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _periodoInfo() {
+    final parsed = _parseDate(_dateCtrl.text);
+    if (parsed == null) return const SizedBox.shrink();
+    final isDiurno = parsed.hour >= 6 && parsed.hour < 18;
+    return Row(
+      children: [
+        Icon(
+          isDiurno ? Icons.wb_sunny_outlined : Icons.nights_stay_outlined,
+          size: 16,
+          color: _green,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          isDiurno ? 'Período: Diurno' : 'Período: Noturno',
+          style: const TextStyle(fontSize: 13, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  Widget _statusSelector() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: _fieldBg,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedStatus,
+          items: const [
+            DropdownMenuItem(value: 'ativo', child: Text('Ativo')),
+            DropdownMenuItem(value: 'completo', child: Text('Completo')),
+            DropdownMenuItem(value: 'cancelado', child: Text('Cancelado')),
+          ],
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _selectedStatus = value);
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _field({
     required TextEditingController controller,
     required String hint,
@@ -365,34 +435,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _statusSelector() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: _fieldBg,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedStatus,
-          items: const [
-            DropdownMenuItem(value: 'ativo', child: Text('Ativo')),
-            DropdownMenuItem(value: 'completo', child: Text('Completo')),
-            DropdownMenuItem(value: 'cancelado', child: Text('Cancelado')),
-          ],
-          onChanged: (value) {
-            if (value == null) {
-              return;
-            }
-
-            setState(() => _selectedStatus = value);
-          },
         ),
       ),
     );
